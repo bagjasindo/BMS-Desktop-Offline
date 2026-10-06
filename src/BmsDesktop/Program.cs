@@ -1,3 +1,6 @@
+using BmsDesktop.Infrastructure;
+using BmsDesktop.Security;
+
 namespace BmsDesktop;
 
 internal static class Program
@@ -6,6 +9,15 @@ internal static class Program
     static void Main()
     {
         ApplicationConfiguration.Initialize();
-        Application.Run(new MainForm());
+        try
+        {
+            var config = AppConfig.Load();
+            var db = new Database(config.Database.ConnectionString);
+            Application.Run(new LoginForm(new AuthService(db)));
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "BMS Desktop Offline", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 }
