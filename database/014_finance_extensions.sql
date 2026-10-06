@@ -1,0 +1,6 @@
+BEGIN;
+CREATE TABLE IF NOT EXISTS employee_cash_advances(id uuid PRIMARY KEY,user_id uuid REFERENCES app_users(id),advance_date date NOT NULL,description text NOT NULL,amount numeric(18,2) NOT NULL CHECK(amount>0),paid_amount numeric(18,2) NOT NULL DEFAULT 0 CHECK(paid_amount>=0),status varchar(20) NOT NULL DEFAULT 'OPEN' CHECK(status IN('OPEN','PARTIAL','PAID','VOID')),created_at timestamptz NOT NULL DEFAULT now(),CHECK(paid_amount<=amount));
+CREATE TABLE IF NOT EXISTS employee_cash_advance_payments(id uuid PRIMARY KEY,advance_id uuid NOT NULL REFERENCES employee_cash_advances(id),payment_date date NOT NULL,amount numeric(18,2) NOT NULL CHECK(amount>0),reference_number text NOT NULL DEFAULT '',created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS payroll_entries(id uuid PRIMARY KEY,cycle_id uuid REFERENCES production_cycles(id),employee_name varchar(160) NOT NULL,pay_date date NOT NULL,amount numeric(18,2) NOT NULL CHECK(amount>=0),notes text NOT NULL DEFAULT '',created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS cash_ledger(id bigserial PRIMARY KEY,entry_date date NOT NULL,direction varchar(10) NOT NULL CHECK(direction IN('IN','OUT')),source_type varchar(50) NOT NULL,source_id text,description text NOT NULL,amount numeric(18,2) NOT NULL CHECK(amount>0),created_at timestamptz NOT NULL DEFAULT now());
+COMMIT;
