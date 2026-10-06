@@ -1,0 +1,4 @@
+using System.Globalization;
+using System.Text;
+namespace BmsDesktop.Reporting;
+public static class CsvExportService { public static void Write(string path,IEnumerable<string> headers,IEnumerable<IEnumerable<object?>> rows){using var w=new StreamWriter(path,false,new UTF8Encoding(true));w.WriteLine(string.Join(";",headers.Select(Escape)));foreach(var row in rows)w.WriteLine(string.Join(";",row.Select(Format)));} private static string Format(object? value)=>value switch{null=>"",decimal d=>d.ToString("N2",CultureInfo.GetCultureInfo("id-ID")),double d=>d.ToString("N2",CultureInfo.GetCultureInfo("id-ID")),DateTime d=>d.ToString("dd/MM/yyyy"),_=>Convert.ToString(value,CultureInfo.GetCultureInfo("id-ID"))??""};private static string Escape(string value){if(value.Contains(';')||value.Contains('"')||value.Contains('\n'))return "\""+value.Replace("\"","\"\"")+"\"";return value;} }
