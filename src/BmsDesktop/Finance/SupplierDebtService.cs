@@ -1,0 +1,5 @@
+using BmsDesktop.Infrastructure;
+using Npgsql;
+namespace BmsDesktop.Finance;
+public sealed record SupplierDebtSummary(string Scope,decimal Invoiced,decimal Paid,decimal Outstanding);
+public sealed class SupplierDebtService { private readonly Database _db; public SupplierDebtService(Database db)=>_db=db; public async Task<IReadOnlyList<SupplierDebtSummary>> GetAsync(){await using var cn=await _db.OpenAsync();await using var c=new NpgsqlCommand("select coalesce(bp.supplier_scope,'UMUM') scope,coalesce(sum(si.total_amount),0) invoiced,coalesce(sum((select coalesce(sum(pa.amount),0) from payment_allocations pa where pa.supplier_invoice_id=si.id)),0) paid from supplier_invoices si join business_partners bp on bp.id=si.supplier_id group by coalesce(bp.supplier_scope,'UMUM')",cn);var rows=new List<SupplierDebtSummary>();await using var r=await c.ExecuteReaderAsync();while(await r.ReadAsync()){var inv=r.GetDecimal(1);var paid=r.GetDecimal(2);rows.Add(new(r.GetString(0),inv,paid,inv-paid));}return rows;} }
