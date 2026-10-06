@@ -1,0 +1,2 @@
+namespace BmsDesktop.Production;
+public static class AgeCalculator { public static int RecordingDay(object? databaseDate,DateOnly recordingDate){var chickIn=databaseDate switch{DateOnly d=>d,DateTime d=>DateOnly.FromDateTime(d),_=>throw new InvalidOperationException("Tanggal Chick-In tidak valid.")};var age=recordingDate.DayNumber-chickIn.DayNumber;if(age<1)throw new InvalidOperationException("Recording Day 1 dimulai H+1 setelah Chick-In.");return age;} }
