@@ -1,0 +1,7 @@
+BEGIN;
+CREATE TABLE IF NOT EXISTS user_barn_assignments(user_id uuid NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,barn_id uuid NOT NULL REFERENCES barns(id) ON DELETE CASCADE,PRIMARY KEY(user_id,barn_id));
+CREATE TABLE IF NOT EXISTS cycle_closings(id uuid PRIMARY KEY,cycle_id uuid NOT NULL UNIQUE REFERENCES production_cycles(id),closed_by uuid NOT NULL REFERENCES app_users(id),closed_at timestamptz NOT NULL DEFAULT now(),snapshot jsonb NOT NULL);
+CREATE TABLE IF NOT EXISTS rhpp_snapshots(id uuid PRIMARY KEY,cycle_id uuid NOT NULL UNIQUE REFERENCES production_cycles(id),rhpp_type varchar(20) NOT NULL CHECK(rhpp_type IN('MITRA','MANDIRI')),snapshot jsonb NOT NULL,created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS finance_cash_requests(id uuid PRIMARY KEY,request_number varchar(80) NOT NULL UNIQUE,request_date date NOT NULL,subject text NOT NULL,status varchar(20) NOT NULL DEFAULT 'DRAFT' CHECK(status IN('DRAFT','APPROVED','REJECTED','VOID')),created_by uuid NOT NULL REFERENCES app_users(id),created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS finance_cash_request_items(id uuid PRIMARY KEY,request_id uuid NOT NULL REFERENCES finance_cash_requests(id) ON DELETE CASCADE,group_type varchar(30) NOT NULL CHECK(group_type IN('KANDANG','BOP_UMUM','BOP_KANTOR','PROYEK_LAINNYA')),barn_id uuid REFERENCES barns(id),description text NOT NULL,amount numeric(18,2) NOT NULL CHECK(amount>=0),notes text NOT NULL DEFAULT '');
+COMMIT;
