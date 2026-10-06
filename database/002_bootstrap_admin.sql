@@ -1,0 +1,6 @@
+-- Jalankan sekali setelah 001_initial.sql.
+-- Admin pertama sengaja TIDAK diberi password default di source.
+-- Buat hash dengan aplikasi/setup tool agar kredensial tidak tersimpan di Git.
+-- Contoh insert setelah hash tersedia:
+-- INSERT INTO app_users(id,username,display_name,password_hash,role)
+-- VALUES(gen_random_uuid(),'admin','Administrator','<HASH>','ADMIN');
