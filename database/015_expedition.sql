@@ -1,0 +1,6 @@
+BEGIN;
+CREATE TABLE IF NOT EXISTS expedition_units(id uuid PRIMARY KEY,code varchar(40) NOT NULL UNIQUE,name varchar(120) NOT NULL,plate_number varchar(30) NOT NULL DEFAULT '',is_active boolean NOT NULL DEFAULT true,created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS expedition_trips(id uuid PRIMARY KEY,trip_number varchar(80) NOT NULL UNIQUE,unit_id uuid REFERENCES expedition_units(id),trip_date date NOT NULL,customer_id uuid REFERENCES business_partners(id),revenue numeric(18,2) NOT NULL DEFAULT 0 CHECK(revenue>=0),status varchar(20) NOT NULL DEFAULT 'DRAFT' CHECK(status IN('DRAFT','FINANCE_FUNDED','LOGISTICS_COMPLETED','CLOSED','VOID')),created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS expedition_costs(id uuid PRIMARY KEY,trip_id uuid NOT NULL REFERENCES expedition_trips(id) ON DELETE CASCADE,cost_type varchar(40) NOT NULL,description text NOT NULL,amount numeric(18,2) NOT NULL CHECK(amount>=0));
+CREATE TABLE IF NOT EXISTS expedition_maintenance(id uuid PRIMARY KEY,unit_id uuid NOT NULL REFERENCES expedition_units(id),expense_date date NOT NULL,description text NOT NULL,amount numeric(18,2) NOT NULL CHECK(amount>=0),created_at timestamptz NOT NULL DEFAULT now());
+COMMIT;
