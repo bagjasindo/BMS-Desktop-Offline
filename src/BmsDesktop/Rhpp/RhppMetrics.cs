@@ -1,0 +1,3 @@
+namespace BmsDesktop.Rhpp;
+public sealed record RhppMetrics(decimal MortalityPct,decimal AvgBodyWeightKg,decimal Fcr,decimal Ip);
+public static class RhppMetricsCalculator { public static RhppMetrics Calculate(decimal docReceived,decimal mortality,decimal harvestBirds,decimal harvestKg,decimal feedKg,decimal ageDays){var mortalityPct=docReceived>0?mortality/docReceived*100m:0m;var avgBw=harvestBirds>0?harvestKg/harvestBirds:0m;var fcr=harvestKg>0?feedKg/harvestKg:0m;var liveability=docReceived>0?(docReceived-mortality)/docReceived*100m:0m;var ip=fcr>0&&ageDays>0?liveability*avgBw*100m/(fcr*ageDays):0m;return new(mortalityPct,avgBw,fcr,ip);} }
