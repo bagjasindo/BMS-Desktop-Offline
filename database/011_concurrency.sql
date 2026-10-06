@@ -1,0 +1,11 @@
+BEGIN;
+ALTER TABLE production_cycles ADD COLUMN IF NOT EXISTS row_version bigint NOT NULL DEFAULT 1;
+ALTER TABLE barns ADD COLUMN IF NOT EXISTS row_version bigint NOT NULL DEFAULT 1;
+ALTER TABLE business_partners ADD COLUMN IF NOT EXISTS row_version bigint NOT NULL DEFAULT 1;
+ALTER TABLE item_master ADD COLUMN IF NOT EXISTS row_version bigint NOT NULL DEFAULT 1;
+CREATE OR REPLACE FUNCTION bump_row_version() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.row_version=OLD.row_version+1; NEW.updated_at=now(); RETURN NEW; END $$;
+DROP TRIGGER IF EXISTS trg_cycles_version ON production_cycles; CREATE TRIGGER trg_cycles_version BEFORE UPDATE ON production_cycles FOR EACH ROW EXECUTE FUNCTION bump_row_version();
+DROP TRIGGER IF EXISTS trg_barns_version ON barns; CREATE TRIGGER trg_barns_version BEFORE UPDATE ON barns FOR EACH ROW EXECUTE FUNCTION bump_row_version();
+DROP TRIGGER IF EXISTS trg_partner_version ON business_partners; CREATE TRIGGER trg_partner_version BEFORE UPDATE ON business_partners FOR EACH ROW EXECUTE FUNCTION bump_row_version();
+DROP TRIGGER IF EXISTS trg_item_version ON item_master; CREATE TRIGGER trg_item_version BEFORE UPDATE ON item_master FOR EACH ROW EXECUTE FUNCTION bump_row_version();
+COMMIT;
